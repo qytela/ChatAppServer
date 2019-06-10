@@ -10,19 +10,21 @@ const Message = conn.define('message', {
         primaryKey: true
     }
 });
-
-Message.createMessage = (text, sender, receiver) => {
-    return Promise.all([
-        Message.create({
-            text,
-            user: {
-                _id: sender.id,
-                name: sender.name
-            }
-        }),
-        conn.models.conversation.findOrCreateConversation(sender.id, receiver.id)
-    ])
-    .then(([message, conversation]) => message.setConversation(conversation));
+Message.associate = function(models) {
+    Message.createMessage = (text, sender, receiver) => {
+        return Promise.all([
+            Message.create({
+                text,
+                user: {
+                    _id: sender.id,
+                    name: sender.name
+                }
+            }),
+            conn.models.conversation.findOrCreateConversation(sender.id, receiver.id)
+        ])
+        .then(([message, conversation]) => message.setConversation(conversation))
+        .catch((err) => console.log(err));
+    }
 }
 
 module.exports = Message;
