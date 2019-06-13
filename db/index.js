@@ -13,7 +13,7 @@ module.exports = {
     conn,
     models: {
         Conversation,
-        User,
-        Message
+        Message,
+        User
     }
 };

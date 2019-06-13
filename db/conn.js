@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize');
-const conn = new Sequelize('postgres://postgres:root@127.0.0.1:53104/chatapp');
+const sequelize = require('sequelize');
+const conn = new sequelize('postgres://localhost/chatapp');
 
 module.exports = conn;
