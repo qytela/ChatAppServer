@@ -3,6 +3,8 @@ const conn = require('./db').conn;
 const io = require('socket.io')(server);
 const { Conversation, Message, User } = require('./db').models;
 
+let mobileSockets = {};
+
 conn.sync({ logging: false, force: true });
 
 io.on('connection', socket => {
@@ -15,6 +17,7 @@ io.on('connection', socket => {
             User.findAll()
         ])
         .then(([user, users]) => {
+            mobileSockets[user[0].id] = socket.id;
             socket.emit('userCreated', { user: user[0], users });
             socket.broadcast.emit('newUser', user[0]);
         })
@@ -35,7 +38,8 @@ io.on('connection', socket => {
         Message.createMessage(text, sender, receiver)
         .then(message => {
             socket.emit('incomingMessage', message);
-            socket.to(receiver.id).emit('incomingMessage', message);
+            const receiverSocketId = mobileSockets[receiver.id]
+            socket.to(receiverSocketId).emit('incomingMessage', message);
         })
         .catch(err => {
             console.log(err);
