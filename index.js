@@ -14,14 +14,15 @@ io.on('connection', socket => {
             User.findOrCreate({
                 where: { name: name, password: password }
             }),
-            User.findOne({
-                where: { name: name, password: password }
-            })
+            User.findAll()
         ])
         .then(([user, users]) => {
-            mobileSockets[user.id] = socket.id;
-            socket.emit('userCreated', { user: user, users });
-            socket.broadcast.emit('newUser', user);
+            mobileSockets[user[0].id] = socket.id;
+            socket.emit('userCreated', { user: user[0], users });
+            socket.broadcast.emit('newUser', user[0]);
+        })
+        .catch(err => {
+            console.log(err);
         });
     });
 
@@ -39,6 +40,9 @@ io.on('connection', socket => {
             socket.emit('incomingMessage', message);
             const receiverSocketId = mobileSockets[receiver.id];
             socket.to(receiverSocketId).emit('incomingMessage', message);
+        })
+        .catch(err => {
+            console.log(err);
         });
     });
 });
